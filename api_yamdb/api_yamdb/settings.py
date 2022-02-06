@@ -1,4 +1,5 @@
 import os
+
 from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,15 +12,17 @@ ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
-    'user.apps.UserConfig',
+    'users.apps.UsersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api.apps.ApiConfig',
     'rest_framework_simplejwt',
+    'rest_framework',
+    'django_filters',
+    'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig',
 ]
 
@@ -97,4 +100,23 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.Users'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(weeks=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+EMAIL_ADMIN = 'admin@yandex.ru'
