@@ -23,8 +23,8 @@ User = get_user_model()
 def signup(request):
     serializer = SignupSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = serializer.data['username']
-    email = serializer.data['email']
+    username = serializer.validated_data['username']
+    email = serializer.validated_data['email']
     user, _ = User.objects.get_or_create(email=email, username=username)
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
@@ -46,14 +46,13 @@ def signup(request):
 def token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = serializer.data['username']
-    confirmation_code = serializer.data['confirmation_code']
+    username = serializer.validated_data['username']
+    confirmation_code = serializer.validated_data['confirmation_code']
     user = get_object_or_404(User, username=username)
     if default_token_generator.check_token(user, confirmation_code):
         access_token = RefreshToken.for_user(user)
         response = {'token': str(access_token.access_token)}
         return Response(response, status=status.HTTP_200_OK)
-
     response = {user.username: 'Confirmation code incorrect.'}
     return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
@@ -61,15 +60,10 @@ def token(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
     http_method_names = ['get', 'post', 'patch', 'delete']
-
     lookup_field = 'username'
-
     pagination_class = UserPagination
-
     permission_classes = (IsAdminPermission,)
-
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
@@ -83,6 +77,5 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(role=user.role, partial=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         serializer = self.get_serializer(user)
         return Response(serializer.data)
