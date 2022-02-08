@@ -1,9 +1,6 @@
-from datetime import datetime as dt
-
 from django.contrib.auth import get_user_model
-
+from django.utils import timezone
 from rest_framework import serializers
-
 from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
@@ -49,29 +46,26 @@ class UserSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ('id', )
         lookup_field = 'slug'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ('id', )
         lookup_field = 'slug'
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
-
-    def get_rating(self, obj):
-        return obj.rating
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
@@ -84,7 +78,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -92,14 +86,13 @@ class TitleWriteSerializer(serializers.ModelSerializer):
                   'description', 'genre', 'category')
 
     def validate_year(self, value):
-        if value > dt.now().year:
+        if value > timezone.now().year:
             raise serializers.ValidationError("Недопустимое значение поля. "
                                               "Год больше текущего.")
         return value
 
-    def get_rating(self, obj):
-        return obj.rating
-
+    # Переопределяем метод для получения данных на выходе в развёрнутом виде
+    # в соответствии с документацией. Без него не получается. :)
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['genre'] = GenreSerializer(instance.genre.all(), many=True).data
@@ -126,20 +119,15 @@ class ReviewSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def create(self, validated_data):
-        author = validated_data.get('author')
-        title = validated_data.get('title')
-
-        if Review.objects.filter(author=author, title=title).exists():
-            raise serializers.ValidationError(
-                {
-                    "non_field_errors": [
-                        "The fields title, author must make a unique set."
-                    ]
-                }
-            )
-
-        return Review.objects.create(**validated_data)
+    def validate(self, data):
+        title_id = self.context.get('kwargs').get('title_id')
+        user = self.context.get('request').user
+        if self.context.get('request').method == 'POST':
+            if Review.objects.filter(author=user, title_id=title_id).exists():
+                raise serializers.ValidationError(
+                    'К произведению можно добавить только один отзыв.'
+                )
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

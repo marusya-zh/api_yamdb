@@ -72,12 +72,12 @@ request sample
 ```
 {
     "name": "string",
-	"year": 0,
-	"description": "string",
+    "year": 0,
+    "description": "string",
     "genre": [
-	    "string"
-	],
-	"category": "string"
+        "string"
+    ],
+    "category": "string"
 }
 ```
 
@@ -87,18 +87,18 @@ response sample
     "id": 0,
     "name": "string",
     "year": 0,
-	"rating": 0,
-	"description": "string",
-	"genre": [
-	    {
-		    "name": "string",
-			"slug": "string"
-		}
-	],
-	"category": {
-	    "name": "string",
-		"slug": "string"
-	}
+    "rating": 0,
+    "description": "string",
+    "genre": [
+        {
+            "name": "string",
+            "slug": "string"
+        }
+    ],
+    "category": {
+        "name": "string",
+        "slug": "string"
+    }
 }
 ```
 
@@ -111,14 +111,14 @@ response sample
 [
     {
         "count": 0,
-		"next": "string",
-		"previous": "string",
+        "next": "string",
+        "previous": "string",
         "results": [
-		    {
+            {
                 "name": "string",
                 "slug": "string"
-			}
-		]
+            }
+        ]
     }
 ]
 ```
@@ -139,7 +139,7 @@ response sample
 {
     "id": 0,
     "text": "string",
-	"author": "string",
+    "author": "string",
     "pub_date": "2022-02-05T18:15:22Z"
 }
 ```
