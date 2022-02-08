@@ -6,13 +6,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .pagination import UserPagination
-from .permissions import (IsAdminPermission, IsModeratorPermission,
-                          IsOwnerPermission, ReadOnlyPermission)
+from .permissions import (IsAdminPermission,
+                          IsAuthorOrAdminOrModeratorOrReadOnly,
+                          IsModeratorPermission, ReadOnlyPermissionOrIsAdmin)
 from .serializers import SignupSerializer, TokenSerializer, UserSerializer
 
 User = get_user_model()
