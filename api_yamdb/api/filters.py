@@ -1,3 +1,4 @@
+# Автоматическая сортировка с помощью isort в VS Code.
 from django_filters import rest_framework as filters
 from reviews.models import Category, Genre, Title
 
@@ -13,7 +14,10 @@ class TitleFilter(filters.FilterSet):
         to_field_name='slug',
         queryset=Genre.objects.all()
     )
+    name = filters.CharFilter(
+        field_name='name', lookup_expr='icontains'
+    )
 
     class Meta:
         model = Title
-        fields = ('category', 'genre', 'year')
+        fields = ('category', 'genre', 'year', 'name')

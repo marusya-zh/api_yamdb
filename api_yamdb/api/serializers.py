@@ -68,7 +68,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
                   'description', 'genre', 'category')
 
 
-class TitleWriteSerializer(serializers.ModelSerializer):
+class TitleWriteSerializer(TitleReadSerializer):
     genre = serializers.SlugRelatedField(
         many=True,
         slug_field='slug',
@@ -90,14 +90,6 @@ class TitleWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Недопустимое значение поля. "
                                               "Год больше текущего.")
         return value
-
-    # Переопределяем метод для получения данных на выходе в развёрнутом виде
-    # в соответствии с документацией. Без него не получается. :)
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['genre'] = GenreSerializer(instance.genre.all(), many=True).data
-        rep['category'] = CategorySerializer(instance.category).data
-        return rep
 
 
 class ReviewSerializer(serializers.ModelSerializer):
