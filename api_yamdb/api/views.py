@@ -4,7 +4,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
 from django_filters import rest_framework as dfrf_filters
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
